@@ -54,12 +54,12 @@ When you encounter zombies:
 
 ### On your turn:
 1. Roll the d20
-2. If you roll higher than (10 + zombie threat level), your attack hits
+2. If you roll higher than (zombie threat level), your attack hits
 3. On a hit, you deal damage equal to your Combat Skill
 
 ### On the zombies' turn:
 1. Roll the d20
-2. If the zombies roll higher than (10 + your Armor), their attack connects
+2. If the zombies roll higher than (1 + your Armor), their attack connects
 3. On a hit, you lose Health equal to the zombies' attack strength
 
 Combat continues until either you or the zombies reach 0 health. If you defeat the zombies, you gain +1 Combat Skill from the 
@@ -85,7 +85,7 @@ When you find a secure shelter:
 ## Hazards
 When you encounter a hazard:
 1. Roll the d20
-2. If you roll higher than (10 + zone number), you avoid the hazard
+2. If you roll higher than (1 + zone number), you avoid the hazard
 3. If you fail to avoid the hazard, take damage equal to the zone number
 
 ## Zone 20: Horde Leader
