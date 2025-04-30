@@ -98,7 +98,7 @@ The final zone contains a massive horde led by a mutated leader:
 ## Special Rules
 
 ### Critical Hit
-If you or a Zombie rolls a natural 20 on an attack, execute a critical hit and deal double damage.
+If you roll a natural 20 on an attack, you execute a critical hit and deal double damage.
 
 ### Last Stand
 If your Health reaches 0, you're not dead yet! Roll the d20:
@@ -137,9 +137,9 @@ You're in Zone 3 with 18 Health, 2 Combat Skill, and 1 Armor.
 - You lose if your Health reaches 0 and you fail your Last Stand roll
 
 ## Difficulty Variants
-- **Prepared Survivor Mode**: Start with Combat Skill 2, Armor 1
-- **Nightmare Mode**: Zombie threat levels are zone number + 2
-- **True Death Mode**: No Last Stand ability
+- **Prepper Mode**: Start with Combat Skill 2, Armor 1
+- **Hardcore Mode**: No Last Stand ability, Zombies can also roll critical hits
+- **Nightmare Mode**: Hardcore, plus Zombie threat levels are zone number + 2
 
 ## Apocalyptic Flavor Text
 When zombies attack you: "The moaning horde lurches forward, decayed hands grasping and teeth gnashing for your flesh."
