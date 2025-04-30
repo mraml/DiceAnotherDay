@@ -14,11 +14,21 @@ mentally, with your d20 determining all outcomes.
 ## Survivor Stats
 Your survivor has three stats that you'll track mentally:
 - **Health**: Start with 20 Health
-- **Combat Skill**: Start with 1 (your attack power)
+- **Combat Skill**: Start with 1 (your attack strength)
 - **Armor**: Start with 0 (your defense)
 
+## Zombie Stats
+Enemies have two stats you'll need to track:
+- **Health**: Current threat level × 2
+- **Attack Strength**: Current threat level ÷ 3 (rounded up)
+
+### Horde Leader Tip
+The Horde Leader has 40 health. A coin can be used in combination with a d20 to track its health. Start with a d20
+showing 20 and the coin on heads. Once the Horde leader loses 20 health, set the d20 back to showing 20 and flip 
+the coin to tails.
+
 ### Optimal Setup
-- While you can play this game with 1d20, it's easier to track your progress with a tracker app, paper, or even 5d20.
+- While you can play this game with 1d20, it's easier to track your progress with a tracker app, paper, or 7 dice, and a coin.
 
 ## Game Flow
 Your journey consists of 20 zones, numbered 1 through 20. You begin in Zone 1, and your goal is to reach and survive Zone 20.
@@ -65,7 +75,7 @@ When you find a supply cache:
       - **1-5**: Serrated Blade (+1 Health when you hit a zombie)
       - **6-10**: Riot Gear (+2 Armor)
       - **11-15**: Military-grade Weapon (+2 Combat Skill)
-      - **16-20**: Survivor's Pack (+5 max Health and heal to full)
+      - **16-20**: Survivor's Pack (heal to full)
 
 ## Shelters
 When you find a secure shelter:
@@ -80,7 +90,7 @@ When you encounter a hazard:
 
 ## Zone 20: Horde Leader
 The final zone contains a massive horde led by a mutated leader:
-- Leader Health: 50
+- Leader Health: 40
 - Leader Attack: 5
 - To hit the Leader, you must roll 15 or higher
 - The Leader hits you on a roll of 10 or higher
