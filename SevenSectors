@@ -1,0 +1,126 @@
+
+# Calculator Roguelike: The Station of Seven Sectors
+
+A sci-fi themed roguelike game that can be played with just a calculator, a coin, and a d20!
+
+## Game Overview
+
+In **Calculator Roguelike: The Station of Seven Sectors**, you're a lone operative infiltrating an abandoned space station. Each compartment is represented by a number on your calculator. Your mission is to descend through all 9 sectors, defeat the rogue AI core, and escape with the quantum encryption key before the station self-destructs.
+
+## Required Equipment
+- A basic calculator (with at least 0-9 digits, +, -, ×, ÷, and = functions)
+- A coin (heads/tails)
+- A d20 (20-sided die)
+
+## Character Creation
+
+1. Roll your stats by pressing random digits on your calculator 3 times: 
+   - First number = your HP (health points) × 5
+   - Second number = your ATK (attack power)
+   - Third number = your DEF (defense)
+
+2. You start with 0 credits and 1 medkit (restores 10 HP).
+
+## Game Board
+
+The calculator display represents your current compartment. At the start, clear your calculator (press C or AC).
+
+## Gameplay
+
+### Basic Actions
+
+On each turn, you may take ONE of these actions:
+- **Move** to an adjacent compartment (explained below)
+- **Attack** a hostile in your current compartment
+- **Scan** for resources
+- **Use** a medkit (restore 10 HP)
+- **Rest** at a power node (restore 2 HP)
+
+### Moving Through the Station
+
+1. To move, add, subtract, multiply, or divide your current compartment number by 1-9:
+   - '+1' might move you forward
+   - '-1' might move you backward
+   - '×2' might move you right
+   - '÷2' might move you left
+
+2. If the result has more digits than your current sector number, you've hit a sealed bulkhead. Your turn ends.
+
+3. Hostile Encounters: After moving, flip the coin:
+   - **Heads**: No hostile
+   - **Tails**: Hostile detected! Roll d20:
+     - 1-10: Security Drone (HP: current compartment ones digit, ATK: 2)
+     - 11-15: Malfunctioning Robot (HP: current compartment ones digit + 3, ATK: 3)
+     - 16-19: Combat Mech (HP: current compartment ones digit + 5, ATK: 4)
+     - 20: Security Lieutenant (HP: current compartment ones digit + 10, ATK: 5)
+
+### Combat
+
+1. **Attack**: Roll d20 + your ATK vs. hostile's HP
+   - If roll + ATK > hostile HP: You win! Gain credits equal to hostile's HP
+   - If roll + ATK ≤ hostile HP: The hostile survives and counterattacks
+
+2. **Hostile Attack**: Hostile ATK - your DEF = damage you take
+   - Minimum damage is always 1
+
+### Scanning
+
+1. When you scan, roll d20:
+   - 1-5: Nothing found
+   - 6-15: Find credits (current compartment digit × 2)
+   - 16-19: Find a medkit (restores 10 HP)
+   - 20: Find equipment! Roll d20 again:
+     - 1-10: Weapon upgrade (+1 ATK)
+     - 11-20: Shield upgrade (+1 DEF)
+
+### Accessing New Sectors
+
+To descend to the next sector:
+1. Find the compartment numbered '0' on your current sector
+2. You must have credits equal to or greater than (current sector × 5)
+3. Pay the credits to override security and move to the next sector
+4. Your compartment number becomes your current sector number
+
+### Special Compartments
+
+- **Compartment 7**: Regeneration Pod (restore 5 HP)
+- **Compartment 3**: Supply Terminal (can buy 1 medkit for 10 credits)
+- **Compartment 8**: Radiation Leak (roll d20 - lose HP equal to roll unless you have DEF greater than the roll)
+- **Compartment 9**: Upgrade Station (flip coin - heads: +1 ATK, tails: +1 DEF)
+
+### The Final Confrontation
+
+On sector 9, in compartment 0, you'll face the Rogue AI Core:
+- HP: 30
+- ATK: 7
+
+If you defeat it, you win the game!
+
+## Victory & Defeat
+
+- **Victory**: Defeat the Rogue AI Core and escape with the quantum encryption key
+- **Defeat**: If your HP reaches 0, you perish in the station
+
+## Game Log
+
+Use your calculator display to track:
+- Current compartment number (displayed)
+- Current sector (memorized)
+
+Use a piece of paper or your phone's notes app to track:
+- HP / Max HP
+- ATK / DEF
+- Credits
+- Medkits
+
+## Example Turn
+
+1. You're in compartment 5 on sector 1.
+2. You decide to move by adding 2: 5 + 2 = 7
+3. You're now in compartment 7 (regeneration pod): gain 5 HP
+4. Flip coin for hostile encounter: Tails - hostile detected!
+5. Roll d20: 13 - Malfunctioning Robot appears with HP 7+3=10, ATK 3
+6. You attack: roll d20 (15) + your ATK (4) = 19 vs hostile HP 10
+7. You defeat the hostile and gain 10 credits
+
+Good luck on your mission, operative! The fate of the galaxy rests in your hands.
