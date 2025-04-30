@@ -1,10 +1,13 @@
-# Deadman's Die: The Wild West Duel Dice Game
+# Deadman's Die: The Wild West Dueling Dice Game
 
 *A tense quick-draw dice dueling game for 1-2 players*
 
 ## Overview
 
-Deadman's Die is a high-stakes dice game set in the lawless frontier. Players engage in nerve-wracking quickdraw duels, trying to deplete their opponent's health while collecting gold bounties. Every roll could mean fortune or a trip to the gallows in this game where speed, luck, and nerves of steel determine who becomes the most feared gunslinger of the territory.
+Deadman's Die is a high-stakes dice game set in the lawless frontier. Players engage in 
+nerve-wracking quickdraw duels, trying to deplete their opponent's health while collecting 
+gold bounties. Every roll could mean fortune or a trip to the gallows in this game where 
+speed, luck, and nerves of steel determine who becomes the most feared gunslinger of the territory.
 
 ## Components Needed
 - 4 six-sided dice (d6) per player
@@ -44,34 +47,41 @@ Deadman's Die is a high-stakes dice game set in the lawless frontier. Players en
 #### 3. Resolution Phase
 - The player who deals 6 damage to their opponent first wins the round
 - Winner collects the gold determined in the Reward Phase
-- The winner's health stays at the reduced number for their next duel, unless they purchase health shots in the store round
+- The winner's health stays at the reduced number for their next duel, unless they purchase 
+health shots in the store round
 - Check for special combinations (see Special Rules)
 
 #### 4. Store Phase
 - Players may purchase:
   - Health: 4 gold per point (max 5)
   - Ammo: 3 gold per point (max 6)
-  - Cast Iron: 50 gold, or 5 gold per player, whichever is greater. A player rolls their cast iron die before the reward phase of a duel. The value shown is added to their health for the duration of the round.
-  - Second pistol: 100 gold, or 10 gold per player, whichever is greater. An extra d6, usable in one Duel. Being used in the player's off hand, it does 1d6 -1 damage. (Players may own one at a time)
-  - Bank Vault Combo: 30 gold. An extra d6 to be rolled during the Rewards Phase. The total reward is determined first, then multiplied by the number rolled on the Bank Vault Combo. Either player receives the increased jackpot should they win the duel. (Players may own one at a time)
+  - Optional items listed below according to rules set by the Sheriff ahead of gameplay
 
-## Special Rules
+## Optional Rules
 
 ### Lucky Shot
-If a player wins a duel by rolling a damage die showing 5 AND has a reward die that shows a 2, they receive DOUBLE the gold reward for that round.
+If a player wins a duel by rolling a damage die showing 5 AND has a reward die that shows a 2, 
+they receive DOUBLE the gold reward for that round.
 
 ### Aces High
-If ALL dice on the table (reward die, and ALL damage dice from both players) show 1's, somebody must be cheatin! A saloon brawl erupts! Both players reroll all their dice (including extra items/bonuses). The player with the higher total wins the duel and gets 10x the value of all dice in gold!
+If ALL dice on the table (reward die, and ALL damage dice from both players) show 1's, somebody 
+must be cheatin! A saloon brawl erupts! Both players reroll all their dice (including extra 
+items/bonuses). The player with the higher total wins the duel and gets 10x the value of all dice 
+in gold!
 
 ### Quick Six Standoff
-If both players roll at least one 6 AND the reward die is NOT a 6, the first player whose die stops rolling wins the round (regardless of total damage). The winner loses no health. This represents the quickest draw in a standoff.
+If both players roll at least one 6 AND the reward die is NOT a 6, the first player whose die stops 
+rolling wins the round (regardless of total damage). The winner loses no health. This represents the 
+quickest draw in a standoff.
 
 ### Jailhouse Justice
-If ALL dice on the table show 6's, the Sheriff intervenes to arrest both fighters! Flip a coin to determine justice:
+If ALL dice on the table show 6's, the Sheriff intervenes to arrest both fighters! Flip a coin to 
+determine justice:
 - Fighters each roll a d6, the person woth the higher number is “heads”
 - The Sheriff flips the coin
 - The player who LOSES the coin flip is "Taken to the Gallows"
-- **Gallows Penalty**: The losing player must surrender all their gold to the winner. In a dual elimination tournament, being taken to the gallows counts as two losses
+- **Gallows Penalty**: The losing player must surrender all their gold to the winner. In a dual 
+elimination tournament, being taken to the gallows counts as two losses
 - The winner also receives their amount on the reward dice
 
 ## Store Items
@@ -82,6 +92,18 @@ At the start of each duel, players can visit the Saloon to purchase:
 - Shot (Health Point): 3 gold each (max 6)
 - Round (Ammo): 2 gold each (max 6)
 
+### Optional Advanced Items
+- Cast Iron: 50 gold, or 5 gold per player, whichever is greater. A player rolls their cast 
+iron die before the reward phase of a duel. The value shown is added to their health for the 
+duration of the round.
+- Second pistol: 100 gold, or 10 gold per player, whichever is greater. An extra d6, usable 
+in one Duel. Being used in the player's off hand, it does 1d6 -1 damage. (Players may own one 
+at a time)
+- Bank Vault Combo: 30 gold. An extra d6 to be rolled during the Rewards Phase. The total 
+reward is determined first, then multiplied by the number rolled on the Bank Vault Combo. 
+Either player receives the increased jackpot should they win the duel. (Players may own one at 
+a time)
+
 ## Tournament Rules
 
 ### Tournament Structure
@@ -90,20 +112,28 @@ At the start of each duel, players can visit the Saloon to purchase:
 - The winner advances to the next bracket
 
 ### Buying Wins
-- A player may spend 500 gold, or 50 per player if that amount is greater, or an amount determined by the Sheriff prior to the start of the tournament, to automatically advance past another player in the tournament.
-- In double-elimination, players may negotiate the purchase of a win for a minimum of 250 gold. The “losing” player in this case must not have no previous loses and counts the loss as normal without reducing health or ammo. This negotiation must be done in a duel before all reward dice have been rolled.
+- A player may spend 500 gold, or 50 per player if that amount is greater, or an amount determined by 
+the Sheriff prior to the start of the tournament, to automatically advance past another player in the 
+tournament.
+- In double-elimination, players may negotiate the purchase of a win for a minimum of 250 gold. The 
+“losing” player in this case must not have no previous loses and counts the loss as normal without 
+reducing health or ammo. This negotiation must be done in a duel before all reward dice have been rolled.
 - Wins may NOT be bought during the final showdown match
 - The player who was bought out still keeps their gold and items
 
 ### The Final Showdown
 - The final match determines the tournament champion
-- The winner earns the title "Fastest Gun in the Territory" and/or another award determined ahead of the tournament by the Sheriff
+- The winner earns the title "Fastest Gun in the Territory" and/or another award determined ahead of the 
+tournament by the Sheriff
 
 ## Solo Play
 
-When playing solo, follow the same rules as the tournament. The solo player competes against “ghost guns” trying to survive as many rounds as possible against increasingly difficult imagined opponents. Track your high score (total gold earned before death) to beat in future games.
+When playing solo, follow the same rules as the tournament. The solo player competes against “ghost guns” 
+trying to survive as many rounds as possible against increasingly difficult imagined opponents. Track your 
+high score (total gold earned before death) to beat in future games.
 
-Alternatively, two players can take turns playing the solo mode, comparing their final gold counts to determine the winner.
+Alternatively, two players can take turns playing the solo mode, comparing their final gold counts to 
+determine the winner.
 
 ## Example of Play
 
@@ -124,8 +154,8 @@ Alternatively, two players can take turns playing the solo mode, comparing their
 5. Bill rolls 4
 6. Bill wins the round, advancing to his next duel with 4 health, 5 ammo, and 9 gold.
 
-### Round 3
-1. Bill starts the duel by buying 2 shots at the saloon, raising his health to 6, as he prepares to face his new opponent, Gus
+### Duel 3
+1. Bill starts the duel by buying 2 shots at the saloon, raising his health to 6, as he faces his new opponent, Gus
 2. The reward rolls total a 6, Bill having rolled a 2
 3. Both players ready their dice at "3-2-1-DRAW!"
 4. Bill rolls a 1, taking Gus’ health down to 5
@@ -140,4 +170,5 @@ Alternatively, two players can take turns playing the solo mode, comparing their
 
 1. **Speed Matters**: In a Quick Six Standoff, being faster can result in a win
 
-Remember, partner: In Deadman's Die, it ain't just about power—it's about speed, strategy, and a steady hand when the tension's high!
+Remember, partner: In Deadman's Die, it ain't just about power—it's about speed, strategy, 
+and a steady hand when the tension's high!
