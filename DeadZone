@@ -1,10 +1,15 @@
 # Dead Zone: A d20 Zombie Apocalypse Solo Adventure
 
 ## Introduction
-The world as we knew it ended three years ago when the outbreak began. Cities fell, governments collapsed, and the dead rose to feast on the living. You're a lone survivor trying to reach the rumored safe haven of New Eden, a fortified settlement 20 miles away through infected territory. Armed with your wits and whatever you can scavenge, you must navigate through 20 zones of zombie-infested wasteland. All you need is a single d20 and your memory to track your desperate journey.
+The world as we knew it ended three years ago when the outbreak began. Cities fell, governments collapsed, and the dead rose 
+to feast on the living. You're a lone survivor trying to reach the rumored safe haven of New Eden, a fortified settlement 20 
+miles away through infected territory. Armed with your wits and whatever you can scavenge, you must navigate through 20 zones 
+of zombie-infested wasteland. All you need is a single d20 and your memory to track your desperate journey.
 
 ## Core Concept
-You are a survivor making your way through 20 miles of zombie-infested wasteland to reach the sanctuary of New Eden. Your goal is to reach Zone 20 and gain entry to the safe haven by defeating the Horde Leader guarding the approach. Everything is tracked mentally, with your d20 determining all outcomes.
+You are a survivor making your way through 20 miles of zombie-infested wasteland to reach the sanctuary of New Eden. Your goal 
+is to reach Zone 20 and gain entry to the safe haven by defeating the Horde Leader guarding the approach. Everything is tracked 
+mentally, with your d20 determining all outcomes.
 
 ## Survivor Stats
 Your survivor has three stats that you'll track mentally:
@@ -47,7 +52,8 @@ When you encounter zombies:
 2. If the zombies roll higher than (10 + your Armor), their attack connects
 3. On a hit, you lose Health equal to the zombies' attack strength
 
-Combat continues until either you or the zombies reach 0 health. If you defeat the zombies, you gain +1 Combat Skill from the experience.
+Combat continues until either you or the zombies reach 0 health. If you defeat the zombies, you gain +1 Combat Skill from the 
+experience.
 
 ## Supply Caches
 When you find a supply cache:
@@ -128,12 +134,14 @@ You're in Zone 3 with 18 Health, 2 Combat Skill, and 1 Armor.
 ## Apocalyptic Flavor Text
 When zombies attack you: "The moaning horde lurches forward, decayed hands grasping and teeth gnashing for your flesh."
 
-When you defeat zombies: "The last of the walking dead collapses with a sickening thud, dark fluid pooling beneath its finally-still corpse."
+When you defeat zombies: "The last of the walking dead collapses with a sickening thud, dark fluid pooling beneath its 
+finally-still corpse."
 
 When finding a supply cache: "Beneath the rubble, someone's last desperate stockpile remains untouched—their loss, your gain."
 
 When triggering a hazard: "In this broken world, sometimes the living dead aren't the most dangerous threat."
 
-At Zone 20: "Beyond the sea of rotting corpses stands a towering figure—once human, now something else entirely. Its eyes, unlike the vacant stares of its minions, track you with terrifying intelligence."
+At Zone 20: "Beyond the sea of rotting corpses stands a towering figure—once human, now something else entirely. Its eyes, 
+unlike the vacant stares of its minions, track you with terrifying intelligence."
 
 Good luck, survivor. The dead are waiting.
