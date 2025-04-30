@@ -6,7 +6,7 @@ A curated repository of minimal tabletop games playable with standard dice and p
 
 DiceAnotherDay hosts markdown instructions for lightweight tabletop games that require minimal components you likely already own. Each game is designed with the following principles:
 
-- **Minimal Components**: Just dice, standard playing cards, or both
+- **Minimal Components**: Just dice, a standard deck of playing cards, maybe a coin
 - **Quick to Learn**: Simple rulesets that can be taught in minutes
 - **Depth of Play**: Despite simplicity, provides engaging tactical and strategic choices
 - **Thematic**: Rich themes from sci-fi to fantasy without complex setup
