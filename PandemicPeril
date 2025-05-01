@@ -10,7 +10,7 @@
     * **Severe:** Start at Infection Rate 3.
 2.  **Your Role:** You are a lone scientist working against the clock.
 3.  **Hope:** Start with a Hope Level of 6. This represents global morale and resources.
-4.  **Cure:** Start at 0. You need to reach a Cure Level of 3 to win.
+4.  **Cure Progress:** Start at 0. You need to reach a Cure Level of 3 to win.
 
 **Gameplay - Each Round:**
 
@@ -46,4 +46,4 @@
         * 5-6: Supply chain disruption decreases Hope by 2
 * **Specialist Abilities:** Before starting, choose a specialization (e.g., Virologist, Epidemiologist, Logistical Expert). This could grant a bonus on certain Action Phase rolls (e.g., Virologist gets +2 on Research rolls).
 * **Increasing Difficulty:** Once you win, try again with a higher starting Infection Rate or lower starting Hope Level.
-* **Narrative Prompts:** Use the die rolls to guide a short narrative of your struggle. For example, a "Setback!" roll could represent a new mutation, while a "Breakthrough!" could be a promising new lead in your research.
+* **Hardcore Mode:** If you roll a 1 in the Action Phase or a 20 in the Infection Phase, your Cure Level is reset to 0.
