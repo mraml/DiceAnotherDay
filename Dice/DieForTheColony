@@ -13,7 +13,8 @@
 1. Place the 4d6 in the center of the play area, all showing "3"
 2. Each player starts with 2d20 representing their initial forces
 3. The Ant Colony player always goes first
-4. Players swap teams (Ants/Grasshoppers) after each game
+4. Flip a coin to determine who plays as Ants first
+5. Players swap teams (Ants/Grasshoppers) after each game
 
 ## Turn Structure
 On your turn, perform these phases in order:
@@ -44,14 +45,15 @@ Assign each of your d20s to one of these actions:
 - If blocker's roll equals or exceeds attacker's roll, the assault fails
 - The blocking d20 is then considered used
 
-### 3. SWARM
-- Roll your d20
-- If you roll 13 or higher:
-  - Choose TWO center dice
-  - **Ants**: Increase one d6 by 1 (max 6)
-  - **Grasshoppers**: Decrease one d6 by 1 (min 1)
-  - Neither change can be blocked
-- If you roll 12 or lower, your action fails
+### 3. MOBILIZE
+- Roll your d20 and announce the result
+- If you roll 14 or higher:
+  - **Ants**: Choose two adjacent center dice. Decrease one by 1 and increase the other by 2 (within limits of 1-6)
+  - **Grasshoppers**: Choose two adjacent center dice. Increase one by 1 and decrease the other by 2 (within limits of 1-6)
+- Your opponent may use an unassigned d20 to DISRUPT the mobilization:
+  - If the defending player rolls higher than the attacker's initial roll, they block 1 point of the transfer
+  - This means the receiving die only changes by 1 instead of 2
+  - The disrupting d20 is then considered used
 
 ### 4. SABOTAGE
 - Target one of your opponent's unused d20s
