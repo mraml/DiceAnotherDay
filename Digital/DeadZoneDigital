@@ -1,0 +1,532 @@
+import React, { useState, useEffect } from 'react';
+
+const DeadZone = () => {
+  // Game state
+  const [zone, setZone] = useState(1);
+  const [health, setHealth] = useState(20);
+  const [maxHealth, setMaxHealth] = useState(20);
+  const [combatSkill, setCombatSkill] = useState(1);
+  const [armor, setArmor] = useState(0);
+  
+  // Encounter state
+  const [encounterType, setEncounterType] = useState(null);
+  const [zombieHealth, setZombieHealth] = useState(0);
+  const [zombieAttack, setZombieAttack] = useState(0);
+  const [zombieThreat, setZombieThreat] = useState(0);
+  
+  // Game flow state
+  const [gamePhase, setGamePhase] = useState('explore'); // explore, combat-player, combat-zombie, loot, shelter, hazard, result, gameover, victory
+  const [lastRoll, setLastRoll] = useState(null);
+  const [rollNeeded, setRollNeeded] = useState(null);
+  const [log, setLog] = useState([]);
+  const [usedLastStand, setUsedLastStand] = useState(false);
+  const [usedRest, setUsedRest] = useState(false);
+  
+  // Flavor text
+  const zombieEncounterText = [
+    "Rotting figures emerge from the shadows, their hunger insatiable.",
+    "The stench hits you first—decomposing flesh and old blood—before you see them stumbling toward you.",
+    "Shambling silhouettes appear on the horizon, drawn by your movement.",
+    "A chorus of groans breaks the silence as the dead close in.",
+    "Pale, lifeless eyes focus on you with primal hunger."
+  ];
+  
+  const zombieAttackText = [
+    "Decayed hands reach for you, fingernails cracked and caked with dried blood.",
+    "Rotting teeth snap at your flesh, desperate to taste the living.",
+    "The horde lurches forward in unison, a wall of death advancing relentlessly.",
+    "A cacophony of moans crescendos as they sense your warmth.",
+    "Their movements are clumsy but persistent—death has all the time in the world."
+  ];
+  
+  const playerAttackText = [
+    "You swing your weapon with desperate strength.",
+    "Adrenaline fuels your strike against the dead.",
+    "With a grim determination, you face the horde.",
+    "Each blow must count—there's no room for error.",
+    "Survival instinct guides your attack."
+  ];
+  
+  const zombieDeathText = [
+    "The corpse collapses with finality, truly dead at last.",
+    "Dark fluid pools beneath the now-still remains.",
+    "Another threat eliminated, but countless more remain in this broken world.",
+    "The light of hunger fades from its milky eyes.",
+    "One less monster in a world overflowing with them."
+  ];
+  
+  const supplyText = [
+    "A desperate survivor's final cache lies untouched, waiting for you.",
+    "Beneath the rubble, supplies remain hidden from the hordes.",
+    "Someone didn't make it out with their stockpile—their loss, your gain.",
+    "A glint of something useful catches your eye among the debris.",
+    "Past survivors left something behind—hopefully, you'll live to use it."
+  ];
+  
+  const shelterText = [
+    "A momentary haven in hell—four walls and something resembling safety.",
+    "You barricade the door, allowing yourself a precious moment to breathe.",
+    "The shelter won't last, but for now, it's a reprieve from the dead.",
+    "In the quiet of the shelter, you tend to your wounds and gather strength.",
+    "A temporary refuge—don't get comfortable, the dead are always waiting."
+  ];
+  
+  const hazardText = [
+    "In this broken world, the living dead aren't always the deadliest threat.",
+    "Civilization's collapse left deadly traps for the unwary survivor.",
+    "Nature reclaims what was taken, with dangerous consequences.",
+    "Man-made dangers persist long after their creators perished.",
+    "The apocalypse transformed the landscape into a minefield of hazards."
+  ];
+  
+  const rollDice = () => {
+    return Math.floor(Math.random() * 20) + 1;
+  };
+  
+  const addToLog = (message, type = 'normal') => {
+    setLog(prev => [{message, type}, ...prev.slice(0, 9)]);
+  };
+  
+  const handleExplore = () => {
+    const roll = rollDice();
+    setLastRoll(roll);
+    
+    // Determine encounter
+    if (roll <= 10) {
+      // Zombie encounter
+      setEncounterType('zombie');
+      const threat = zone;
+      const health = threat * 2;
+      const attack = Math.ceil(threat / 3);
+      setZombieThreat(threat);
+      setZombieHealth(health);
+      setZombieAttack(attack);
+      addToLog(zombieEncounterText[Math.floor(Math.random() * zombieEncounterText.length)], 'danger');
+      addToLog(`You encounter zombies (Threat: ${threat}, Health: ${health}, Attack: ${attack})`, 'system');
+      setGamePhase('combat-player');
+      setRollNeeded(10 + threat);
+    } else if (roll <= 14) {
+      // Supply cache
+      setEncounterType('supply');
+      addToLog(supplyText[Math.floor(Math.random() * supplyText.length)], 'loot');
+      addToLog("You found a supply cache!", 'system');
+      setGamePhase('loot');
+    } else if (roll <= 17) {
+      // Shelter
+      setEncounterType('shelter');
+      addToLog(shelterText[Math.floor(Math.random() * shelterText.length)], 'shelter');
+      addToLog("You found a shelter where you can rest.", 'system');
+      setGamePhase('shelter');
+    } else if (roll <= 19) {
+      // Hazard
+      setEncounterType('hazard');
+      addToLog(hazardText[Math.floor(Math.random() * hazardText.length)], 'hazard');
+      addToLog("You encounter a dangerous hazard!", 'system');
+      setGamePhase('hazard');
+      setRollNeeded(10 + zone);
+    } else {
+      // Clear path
+      setEncounterType('clear');
+      addToLog("The way ahead is clear of immediate threats.", 'good');
+      addToLog("You move safely through the area.", 'system');
+      setGamePhase('result');
+    }
+  };
+  
+  const handleCombatPlayerTurn = () => {
+    const roll = rollDice();
+    setLastRoll(roll);
+    
+    addToLog(playerAttackText[Math.floor(Math.random() * playerAttackText.length)], 'action');
+    
+    // Check for hit
+    if (roll === 20) {
+      // Critical hit
+      const damage = combatSkill * 2;
+      setZombieHealth(prev => Math.max(0, prev - damage));
+      addToLog(`CRITICAL HIT! You deal ${damage} damage to the zombies!`, 'critical');
+    } else if (roll > rollNeeded) {
+      // Regular hit
+      setZombieHealth(prev => Math.max(0, prev - combatSkill));
+      addToLog(`Hit! You deal ${combatSkill} damage to the zombies.`, 'hit');
+    } else {
+      // Miss
+      addToLog("Miss! Your attack fails to connect.", 'miss');
+    }
+    
+    // Check if zombies are defeated
+    if (zombieHealth <= combatSkill || (roll === 20 && zombieHealth <= combatSkill * 2)) {
+      addToLog(zombieDeathText[Math.floor(Math.random() * zombieDeathText.length)], 'victory');
+      addToLog("You defeated the zombies and gained +1 Combat Skill!", 'system');
+      setCombatSkill(prev => prev + 1);
+      setGamePhase('result');
+    } else {
+      setGamePhase('combat-zombie');
+    }
+  };
+  
+  const handleCombatZombieTurn = () => {
+    const roll = rollDice();
+    setLastRoll(roll);
+    
+    addToLog(zombieAttackText[Math.floor(Math.random() * zombieAttackText.length)], 'danger');
+    
+    // Check for hit
+    if (roll > (10 + armor)) {
+      // Hit
+      setHealth(prev => Math.max(0, prev - zombieAttack));
+      addToLog(`Hit! The zombies deal ${zombieAttack} damage to you.`, 'damage');
+    } else {
+      // Miss
+      addToLog("Miss! The zombies' attack fails to connect.", 'good');
+    }
+    
+    // Check if player is defeated
+    if (health <= zombieAttack && roll > (10 + armor)) {
+      if (!usedLastStand) {
+        addToLog("You're critically wounded! Your Last Stand ability activates.", 'system');
+        setGamePhase('last-stand');
+      } else {
+        addToLog("You have fallen to the horde...", 'death');
+        setGamePhase('gameover');
+      }
+    } else {
+      setGamePhase('combat-player');
+    }
+  };
+  
+  const handleLoot = () => {
+    const roll = rollDice();
+    setLastRoll(roll);
+    
+    if (roll <= 7) {
+      // Weapon
+      setCombatSkill(prev => prev + 1);
+      addToLog("You found a better weapon! Combat Skill +1", 'upgrade');
+    } else if (roll <= 14) {
+      // Armor
+      setArmor(prev => prev + 1);
+      addToLog("You found protective gear! Armor +1", 'upgrade');
+    } else if (roll <= 19) {
+      // First aid
+      const healAmount = 5;
+      setHealth(prev => Math.min(maxHealth, prev + healAmount));
+      addToLog(`You found a first aid kit! Healed ${healAmount} Health.`, 'heal');
+    } else {
+      // Rare equipment
+      const rareRoll = rollDice();
+      if (rareRoll <= 5) {
+        // Serrated Blade
+        addToLog("You found a Serrated Blade! +1 Health when you hit a zombie.", 'rare');
+        addToLog("(Effect not implemented in basic version)", 'system');
+      } else if (rareRoll <= 10) {
+        // Riot Gear
+        setArmor(prev => prev + 2);
+        addToLog("You found Riot Gear! Armor +2", 'rare');
+      } else if (rareRoll <= 15) {
+        // Military Weapon
+        setCombatSkill(prev => prev + 2);
+        addToLog("You found a Military-grade Weapon! Combat Skill +2", 'rare');
+      } else {
+        // Survivor Pack
+        setMaxHealth(prev => prev + 5);
+        setHealth(maxHealth + 5);
+        addToLog("You found a Survivor's Pack! Max Health +5 and fully healed.", 'rare');
+      }
+    }
+    
+    setGamePhase('result');
+  };
+  
+  const handleShelter = () => {
+    const roll = rollDice();
+    setLastRoll(roll);
+    
+    const healAmount = Math.min(roll, maxHealth - health);
+    setHealth(prev => prev + healAmount);
+    
+    addToLog(`You rest in the shelter and recover ${healAmount} Health.`, 'heal');
+    setGamePhase('result');
+  };
+  
+  const handleHazard = () => {
+    const roll = rollDice();
+    setLastRoll(roll);
+    
+    if (roll > rollNeeded) {
+      // Avoided
+      addToLog("You successfully avoid the hazard!", 'good');
+    } else {
+      // Failed
+      const damage = zone;
+      setHealth(prev => Math.max(0, prev - damage));
+      addToLog(`You couldn't avoid the hazard and took ${damage} damage.`, 'damage');
+      
+      // Check if player is defeated
+      if (health <= damage) {
+        if (!usedLastStand) {
+          addToLog("You're critically wounded! Your Last Stand ability activates.", 'system');
+          setGamePhase('last-stand');
+          return;
+        } else {
+          addToLog("You have fallen...", 'death');
+          setGamePhase('gameover');
+          return;
+        }
+      }
+    }
+    
+    setGamePhase('result');
+  };
+  
+  const handleLastStand = () => {
+    const roll = rollDice();
+    setLastRoll(roll);
+    
+    if (roll >= 10) {
+      // Survived
+      setHealth(1);
+      setUsedLastStand(true);
+      addToLog("Your survival instinct kicks in! You recover with 1 Health.", 'critical');
+      setGamePhase('result');
+    } else {
+      // Failed
+      addToLog("Despite your best efforts, you succumb to your wounds...", 'death');
+      setGamePhase('gameover');
+    }
+  };
+  
+  const handleRest = () => {
+    const roll = rollDice();
+    setLastRoll(roll);
+    
+    const healAmount = roll;
+    setHealth(prev => Math.min(maxHealth, prev + healAmount));
+    setUsedRest(true);
+    
+    addToLog(`You take time to rest and recover ${healAmount} Health.`, 'heal');
+    setGamePhase('explore');
+  };
+  
+  const handleResult = () => {
+    // Progress to next zone or victory
+    if (zone === 20 && encounterType !== 'zombie') {
+      // At zone 20, you must face the final boss
+      addToLog("You've reached Zone 20, but the way to New Eden is blocked by a massive horde.", 'system');
+      setEncounterType('boss');
+      setZombieThreat(20);
+      setZombieHealth(50);
+      setZombieAttack(5);
+      setRollNeeded(15);
+      setGamePhase('combat-player');
+      addToLog("A towering, mutated figure leads the horde—once human, now something else entirely.", 'boss');
+    } else if (zone === 20 && encounterType === 'zombie' && zombieHealth <= 0) {
+      // Victory condition
+      setGamePhase('victory');
+      addToLog("The massive leader of the horde falls. The gates of New Eden open before you.", 'victory');
+      addToLog("You've survived the Dead Zone and reached safety at last!", 'victory');
+    } else {
+      // Move to next zone
+      setZone(prev => prev + 1);
+      setGamePhase('explore');
+      addToLog(`You advance to Zone ${zone + 1}.`, 'system');
+    }
+  };
+  
+  const handleAction = () => {
+    switch (gamePhase) {
+      case 'explore':
+        handleExplore();
+        break;
+      case 'combat-player':
+        handleCombatPlayerTurn();
+        break;
+      case 'combat-zombie':
+        handleCombatZombieTurn();
+        break;
+      case 'loot':
+        handleLoot();
+        break;
+      case 'shelter':
+        handleShelter();
+        break;
+      case 'hazard':
+        handleHazard();
+        break;
+      case 'result':
+        handleResult();
+        break;
+      case 'last-stand':
+        handleLastStand();
+        break;
+      case 'gameover':
+      case 'victory':
+        resetGame();
+        break;
+      default:
+        break;
+    }
+  };
+  
+  const resetGame = () => {
+    setZone(1);
+    setHealth(20);
+    setMaxHealth(20);
+    setCombatSkill(1);
+    setArmor(0);
+    setEncounterType(null);
+    setZombieHealth(0);
+    setZombieAttack(0);
+    setZombieThreat(0);
+    setGamePhase('explore');
+    setLastRoll(null);
+    setRollNeeded(null);
+    setLog([{message: "You begin your journey through the Dead Zone.", type: 'system'}]);
+    setUsedLastStand(false);
+    setUsedRest(false);
+  };
+  
+  const getActionButtonText = () => {
+    switch (gamePhase) {
+      case 'explore':
+        return usedRest ? 'Explore Zone' : 'Explore Zone / Rest';
+      case 'combat-player':
+        return 'Attack';
+      case 'combat-zombie':
+        return 'Defend';
+      case 'loot':
+        return 'Loot Supplies';
+      case 'shelter':
+        return 'Rest in Shelter';
+      case 'hazard':
+        return 'Navigate Hazard';
+      case 'result':
+        return zone === 20 && encounterType === 'zombie' && zombieHealth <= 0 ? 'Claim Victory' : 'Proceed to Next Zone';
+      case 'last-stand':
+        return 'Last Stand';
+      case 'gameover':
+        return 'Try Again';
+      case 'victory':
+        return 'New Game';
+      default:
+        return 'Act';
+    }
+  };
+  
+  const showRestOption = () => {
+    return gamePhase === 'explore' && !usedRest;
+  };
+  
+  useEffect(() => {
+    resetGame();
+  }, []);
+
+  return (
+    <div className="flex flex-col items-center w-full min-h-screen bg-black text-green-400 p-6 font-mono">
+      <h1 className="text-4xl mb-6 text-magenta-500 font-bold tracking-wider text-center">DEAD ZONE</h1>
+      <h2 className="text-xl mb-6 text-red-500 italic">Zombie Apocalypse Survivor</h2>
+      
+      {/* Game Status */}
+      <div className="w-full max-w-2xl mb-6 p-4 border border-green-500 bg-black">
+        <div className="flex justify-between mb-2">
+          <div className="text-xl">Zone: <span className="text-red-500">{zone}/20</span></div>
+          <div className="text-xl">Health: <span className="text-red-500">{health}/{maxHealth}</span></div>
+        </div>
+        <div className="flex justify-between">
+          <div className="text-xl">Combat Skill: <span className="text-red-500">{combatSkill}</span></div>
+          <div className="text-xl">Armor: <span className="text-red-500">{armor}</span></div>
+        </div>
+      </div>
+      
+      {/* Encounter Info */}
+      {encounterType === 'zombie' && gamePhase.includes('combat') && (
+        <div className="w-full max-w-2xl mb-6 p-4 border border-red-500 bg-black">
+          <h3 className="text-xl text-red-500 mb-2">ZOMBIE HORDE</h3>
+          <div className="flex justify-between">
+            <div>Threat: <span className="text-green-400">{zombieThreat}</span></div>
+            <div>Health: <span className="text-green-400">{zombieHealth}</span></div>
+            <div>Attack: <span className="text-green-400">{zombieAttack}</span></div>
+          </div>
+        </div>
+      )}
+      
+      {/* Dice Roll Info */}
+      {lastRoll !== null && (
+        <div className="w-full max-w-2xl mb-6 p-4 border border-green-500 bg-black">
+          <div className="flex justify-between items-center">
+            <div className="text-xl">Last Roll: <span className={lastRoll === 20 ? "text-red-500 font-bold" : "text-green-400"}>{lastRoll}</span></div>
+            {rollNeeded && <div className="text-xl">Needed: <span className="text-green-400">{rollNeeded}+</span></div>}
+          </div>
+        </div>
+      )}
+      
+      {/* Action Buttons */}
+      <div className="w-full max-w-2xl mb-6 flex justify-center space-x-4">
+        <button 
+          onClick={handleAction}
+          className="px-8 py-4 bg-green-900 text-green-400 border-2 border-green-500 text-xl hover:bg-green-800 transition-all">
+          {getActionButtonText()}
+        </button>
+        
+        {showRestOption() && (
+          <button 
+            onClick={handleRest}
+            className="px-8 py-4 bg-red-900 text-red-400 border-2 border-red-500 text-xl hover:bg-red-800 transition-all">
+            Rest
+          </button>
+        )}
+      </div>
+      
+      {/* Game State */}
+      {gamePhase === 'gameover' && (
+        <div className="w-full max-w-2xl mb-6 p-4 border border-red-500 bg-black">
+          <h3 className="text-2xl text-red-500 text-center">GAME OVER</h3>
+          <p className="text-center mt-2">You have fallen. The dead continue their endless march.</p>
+        </div>
+      )}
+      
+      {gamePhase === 'victory' && (
+        <div className="w-full max-w-2xl mb-6 p-4 border border-green-500 bg-black">
+          <h3 className="text-2xl text-green-500 text-center">VICTORY</h3>
+          <p className="text-center mt-2">You've reached New Eden! Safety at last... for now.</p>
+        </div>
+      )}
+      
+      {/* Log */}
+      <div className="w-full max-w-2xl mb-6 p-4 border border-magenta-500 bg-black h-64 overflow-y-auto">
+        <h3 className="text-xl text-magenta-500 mb-2">SURVIVAL LOG</h3>
+        <div className="space-y-2">
+          {log.map((entry, index) => (
+            <div key={index} className={`
+              ${entry.type === 'system' ? 'text-green-400' : ''}
+              ${entry.type === 'danger' ? 'text-red-500' : ''}
+              ${entry.type === 'action' ? 'text-yellow-400' : ''}
+              ${entry.type === 'hit' ? 'text-green-400' : ''}
+              ${entry.type === 'miss' ? 'text-gray-400' : ''}
+              ${entry.type === 'damage' ? 'text-red-500' : ''}
+              ${entry.type === 'heal' ? 'text-green-500' : ''}
+              ${entry.type === 'upgrade' ? 'text-blue-400' : ''}
+              ${entry.type === 'loot' ? 'text-magenta-400' : ''}
+              ${entry.type === 'shelter' ? 'text-cyan-400' : ''}
+              ${entry.type === 'hazard' ? 'text-yellow-500' : ''}
+              ${entry.type === 'critical' ? 'text-red-500 font-bold' : ''}
+              ${entry.type === 'victory' ? 'text-green-500' : ''}
+              ${entry.type === 'death' ? 'text-red-500' : ''}
+              ${entry.type === 'good' ? 'text-green-400' : ''}
+              ${entry.type === 'boss' ? 'text-red-500 font-bold' : ''}
+              ${entry.type === 'rare' ? 'text-magenta-500' : ''}
+            `}>
+              {entry.message}
+            </div>
+          ))}
+        </div>
+      </div>
+      
+      <div className="text-center text-sm text-green-700 mt-4">
+        Push your luck. Survive the apocalypse. One button at a time.
+      </div>
+    </div>
+  );
+};
+
+export default DeadZone;
