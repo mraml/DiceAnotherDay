@@ -1,0 +1,523 @@
+import React, { useState, useEffect } from 'react';
+
+const TrenchWarfareGame = () => {
+  // Game states
+  const [gameStarted, setGameStarted] = useState(false);
+  const [day, setDay] = useState(1);
+  const [gamePhase, setGamePhase] = useState('dawn');
+  const [gameLog, setGameLog] = useState([]);
+  const [gameOver, setGameOver] = useState(false);
+  const [victory, setVictory] = useState(false);
+  const [eventMessage, setEventMessage] = useState('');
+  const [actionResult, setActionResult] = useState('');
+  
+  // Character stats
+  const [physicalHealth, setPhysicalHealth] = useState(18);
+  const [mentalFortitude, setMentalFortitude] = useState(16);
+  const [supplies, setSupplies] = useState({
+    food: 4,
+    water: 4,
+    ammunition: 4,
+    medical: 4
+  });
+  const [camaraderie, setCamaraderie] = useState('Heads'); // Heads = Good, Tails = Poor
+  const [specialization, setSpecialization] = useState('');
+
+  // Initialize random starting supplies
+  useEffect(() => {
+    if (gameStarted && specialization !== '') {
+      const randomSupplies = {
+        food: rollDie(6),
+        water: rollDie(6),
+        ammunition: rollDie(6),
+        medical: rollDie(6)
+      };
+      setSupplies(randomSupplies);
+      
+      // Flip coin for starting camaraderie
+      const startingCamaraderie = Math.random() > 0.5 ? 'Heads' : 'Tails';
+      setCamaraderie(startingCamaraderie);
+      
+      addToGameLog(`Day ${day} begins. You're stationed at the Western Front.`);
+      addToGameLog(`Your camaraderie with your fellow soldiers is ${startingCamaraderie === 'Heads' ? 'good' : 'poor'}.`);
+      startDawnPhase();
+    }
+  }, [gameStarted, specialization]);
+
+  // Roll dice functions
+  const rollDie = (sides) => {
+    return Math.floor(Math.random() * sides) + 1;
+  };
+  
+  const rollD20 = () => rollDie(20);
+  const rollD6 = () => rollDie(6);
+  const flipCoin = () => Math.random() > 0.5 ? 'Heads' : 'Tails';
+
+  // Game log function
+  const addToGameLog = (message) => {
+    setGameLog(prevLog => [message, ...prevLog]);
+  };
+
+  // Start game with chosen specialization
+  const startGame = (chosenSpecialization) => {
+    setSpecialization(chosenSpecialization);
+    setGameStarted(true);
+    addToGameLog(`You've chosen to be a ${chosenSpecialization}.`);
+  };
+
+  // Game phase handlers
+  const startDawnPhase = () => {
+    setGamePhase('dawn');
+    const dailyEvent = rollD20();
+    handleDailyEvent(dailyEvent);
+  };
+
+  const startMorningPhase = () => {
+    setGamePhase('morning');
+    setEventMessage('');
+    addToGameLog('Morning has arrived. The mist clears from the trenches.');
+  };
+
+  const startAfternoonPhase = () => {
+    setGamePhase('afternoon');
+    setActionResult('');
+    addToGameLog('It\'s afternoon. The sun beats down on the muddy trenches.');
+  };
+
+  const startEveningPhase = () => {
+    setGamePhase('evening');
+    setActionResult('');
+    addToGameLog('Evening falls. A brief respite before night watch.');
+  };
+
+  const startNightPhase = () => {
+    setGamePhase('night');
+    setActionResult('');
+    addToGameLog('Night envelops the battlefield. Try to get some rest.');
+    
+    const nightEvent = rollDie(10);
+    if (nightEvent <= 3) {
+      const eventTypes = [
+        'Artillery bombardment! Take cover!',
+        'Enemy night raid! All hands to defense positions!',
+        'Surprise inspection from the officers.',
+        'Rats have gotten into the food supply again.'
+      ];
+      const event = eventTypes[rollDie(4) - 1];
+      addToGameLog(`Night disturbance: ${event}`);
+      handleNightEvent(nightEvent);
+    } else {
+      addToGameLog('The night passes relatively quietly.');
+    }
+  };
+
+  const endDay = () => {
+    // Check if player survived the day
+    if (physicalHealth <= 0) {
+      addToGameLog('Your wounds were too severe. You did not survive.');
+      setGameOver(true);
+      return;
+    }
+    
+    if (mentalFortitude <= 0) {
+      addToGameLog('The stress of war was too much. You\'ve been removed from the front with shell shock.');
+      setGameOver(true);
+      return;
+    }
+    
+    // Daily supply reduction
+    const newSupplies = {...supplies};
+    newSupplies.food = Math.max(0, newSupplies.food - 1);
+    if (newSupplies.food === 0) {
+      addToGameLog('You\'re out of food. Your health will suffer until you find more.');
+      setPhysicalHealth(prev => Math.max(1, prev - 1));
+    }
+    
+    newSupplies.water = Math.max(0, newSupplies.water - 1);
+    if (newSupplies.water === 0) {
+      addToGameLog('You\'re out of water. Your health will rapidly deteriorate.');
+      setPhysicalHealth(prev => Math.max(1, prev - 2));
+    }
+    
+    setSupplies(newSupplies);
+    
+    // Check if survived for 7 days
+    if (day >= 7) {
+      addToGameLog('After a harrowing week, your unit is relieved from the front lines. You\'ve survived!');
+      setGameOver(true);
+      setVictory(true);
+      return;
+    }
+    
+    // Advance to next day
+    setDay(prev => prev + 1);
+    addToGameLog(`Day ${day + 1} begins. Another day in the trenches.`);
+    startDawnPhase();
+  };
+
+  // Event handlers
+  const handleDailyEvent = (eventRoll) => {
+    let eventDesc = '';
+    
+    switch (eventRoll) {
+      case 1:
+        eventDesc = 'Gas attack! Put on your mask quickly!';
+        const gasCheck = rollD20();
+        if (gasCheck < 15) {
+          const gasDamage = rollD6();
+          setPhysicalHealth(prev => Math.max(0, prev - gasDamage));
+          eventDesc += ` You were exposed and took ${gasDamage} damage.`;
+        } else {
+          eventDesc += ' You managed to get your mask on in time.';
+        }
+        break;
+      case 2:
+        eventDesc = 'Artillery barrage incoming!';
+        const artilleryDamage = rollD6();
+        setPhysicalHealth(prev => Math.max(0, prev - artilleryDamage));
+        eventDesc += ` You took ${artilleryDamage} damage from the shelling.`;
+        break;
+      case 3:
+        eventDesc = 'Enemy sniper is active. Movement above the trench is restricted.';
+        break;
+      case 4:
+        eventDesc = 'Supply delivery has arrived!';
+        const supplyType = ['food', 'water', 'ammunition', 'medical'][rollDie(4) - 1];
+        setSupplies(prev => ({...prev, [supplyType]: 6}));
+        eventDesc += ` Your ${supplyType} supplies have been replenished.`;
+        break;
+      case 5:
+        eventDesc = 'Rats have infested the food supplies.';
+        setSupplies(prev => ({...prev, food: Math.max(0, prev.food - 1)}));
+        break;
+      case 6:
+        eventDesc = 'Trench foot outbreak in the unit.';
+        const tfCheck = rollD20();
+        if (tfCheck < 12) {
+          eventDesc += ' Your feet are affected, making movement painful.';
+        } else {
+          eventDesc += ' You\'ve kept your feet dry and avoided the worst of it.';
+        }
+        break;
+      case 7:
+        eventDesc = 'Rainstorm has begun. The trenches are starting to flood.';
+        break;
+      case 8:
+        eventDesc = 'Orders received: Raid enemy trench tonight.';
+        break;
+      case 9:
+        eventDesc = 'Friendly fire incident nearby. Testing camaraderie.';
+        setCamaraderie(flipCoin());
+        break;
+      case 10:
+        eventDesc = 'Enemy breakthrough reported nearby. Prepare for possible combat.';
+        break;
+      case 11:
+        eventDesc = 'Disease outbreak in the trenches.';
+        const diseaseCheck = rollD20();
+        if (diseaseCheck < 14) {
+          eventDesc += ' You\'ve contracted the illness.';
+          setPhysicalHealth(prev => Math.max(0, prev - 2));
+        } else {
+          eventDesc += ' You\'ve managed to stay healthy for now.';
+        }
+        break;
+      case 12:
+        eventDesc = 'Quiet day on the front. A rare opportunity to recover.';
+        break;
+      case 13:
+        eventDesc = 'Personal mail delivered!';
+        const moraleBuff = rollDie(4);
+        setMentalFortitude(prev => Math.min(20, prev + moraleBuff));
+        eventDesc += ` Letters from home have boosted your morale by ${moraleBuff}.`;
+        break;
+      case 14:
+        eventDesc = 'Officer inspection today. Testing camaraderie.';
+        setCamaraderie(flipCoin());
+        break;
+      case 15:
+        eventDesc = 'Intelligence reports enemy tunneling activity beneath your sector.';
+        break;
+      case 16:
+        eventDesc = 'Unexploded shell discovered in your trench section.';
+        break;
+      case 17:
+        eventDesc = 'New replacements have arrived to the unit.';
+        const newSupplyType = ['food', 'water', 'ammunition', 'medical'][rollDie(4) - 1];
+        setSupplies(prev => ({...prev, [newSupplyType]: prev[newSupplyType] + 1}));
+        eventDesc += ` You managed to get extra ${newSupplyType}.`;
+        break;
+      case 18:
+        eventDesc = 'Rumors spreading of a major offensive soon.';
+        setMentalFortitude(prev => Math.max(1, prev - 1));
+        break;
+      case 19:
+        eventDesc = 'Enemy reconnaissance aircraft spotted overhead.';
+        break;
+      case 20:
+        eventDesc = 'Mysterious package from home arrives for you.';
+        const mysteryEffect = rollDie(6);
+        if (mysteryEffect <= 3) {
+          const healthBoost = rollDie(4);
+          setPhysicalHealth(prev => Math.min(20, prev + healthBoost));
+          eventDesc += ` Inside you find food and supplies, boosting your health by ${healthBoost}.`;
+        } else {
+          const moraleBoost = rollDie(6);
+          setMentalFortitude(prev => Math.min(20, prev + moraleBoost));
+          eventDesc += ` Inside you find personal mementos, boosting your morale by ${moraleBoost}.`;
+        }
+        break;
+      default:
+        eventDesc = 'An uneventful morning on the Western Front.';
+    }
+    
+    setEventMessage(eventDesc);
+    addToGameLog(`Dawn Event: ${eventDesc}`);
+  };
+
+  const handleNightEvent = (eventRoll) => {
+    if (eventRoll === 1) { // Artillery
+      const damage = rollDie(6);
+      setPhysicalHealth(prev => Math.max(0, prev - damage));
+      addToGameLog(`You took ${damage} damage from the night bombardment.`);
+    } else if (eventRoll === 2) { // Night raid
+      const combatRoll = rollD20();
+      if (combatRoll < 10) {
+        const damage = rollDie(6) + 1;
+        setPhysicalHealth(prev => Math.max(0, prev - damage));
+        addToGameLog(`You were wounded in the night raid and took ${damage} damage.`);
+      } else {
+        addToGameLog('You successfully helped repel the night raid.');
+        setMentalFortitude(prev => Math.min(20, prev + 1));
+      }
+    } else if (eventRoll === 3) { // Inspection
+      const inspectionRoll = rollD20();
+      if (inspectionRoll < 12) {
+        addToGameLog('The officer found fault with your position. Camaraderie decreased.');
+        setCamaraderie('Tails');
+      } else {
+        addToGameLog('Your section passed inspection admirably.');
+        setCamaraderie('Heads');
+      }
+    }
+  };
+
+  // Action handlers
+  const performAction = (action) => {
+    let result = '';
+    
+    switch (action) {
+      case 'reinforce':
+        const reinforceRoll = rollD20() + (specialization === 'Engineer' ? 2 : 0);
+        if (reinforceRoll >= 12) {
+          result = 'You successfully reinforced your position.';
+          setPhysicalHealth(prev => Math.min(20, prev + 1));
+        } else {
+          result = 'Your reinforcement efforts were inadequate.';
+        }
+        break;
+      case 'scavenge':
+        const scavengeRoll = rollD20();
+        if (scavengeRoll >= 15) {
+          const supplyType = ['food', 'water', 'ammunition', 'medical'][rollDie(4) - 1];
+          setSupplies(prev => ({...prev, [supplyType]: Math.min(6, prev[supplyType] + rollDie(3))}));
+          result = `You successfully scavenged additional ${supplyType}.`;
+        } else if (scavengeRoll < 8) {
+          setPhysicalHealth(prev => Math.max(0, prev - 1));
+          result = 'While scavenging, you cut yourself on barbed wire.';
+        } else {
+          result = 'Your scavenging yielded nothing useful.';
+        }
+        break;
+      case 'medicalCare':
+        if (supplies.medical > 0) {
+          const healAmount = rollDie(6) + (specialization === 'Medic' ? 2 : 0);
+          setPhysicalHealth(prev => Math.min(20, prev + healAmount));
+          setSupplies(prev => ({...prev, medical: prev.medical - 1}));
+          result = `You used medical supplies and recovered ${healAmount} health.`;
+        } else {
+          result = 'You have no medical supplies remaining.';
+        }
+        break;
+      case 'reconnaissance':
+        const reconRoll = rollD20() + (specialization === 'Scout' ? 2 : 0);
+        if (reconRoll >= 14) {
+          result = 'Your reconnaissance was successful. You gathered valuable intelligence.';
+          setMentalFortitude(prev => Math.min(20, prev + 1));
+          // Potential item or intel reward
+        } else if (reconRoll < 8) {
+          const damage = rollDie(4);
+          setPhysicalHealth(prev => Math.max(0, prev - damage));
+          result = `You were spotted during reconnaissance and took ${damage} damage.`;
+        } else {
+          result = 'Your reconnaissance yielded no significant information.';
+        }
+        break;
+      case 'rest':
+        const restRoll = rollDie(4);
+        setPhysicalHealth(prev => Math.min(20, prev + restRoll));
+        result = `You managed to get some rest and recovered ${restRoll} health.`;
+        break;
+      case 'letters':
+        const lettersRoll = rollDie(4);
+        setMentalFortitude(prev => Math.min(20, prev + lettersRoll));
+        result = `Writing letters home has improved your mental state by ${lettersRoll}.`;
+        break;
+      case 'trade':
+        const tradeRoll = rollD20() + (camaraderie === 'Heads' ? 2 : -2);
+        if (tradeRoll >= 12) {
+          const giveSupply = ['food', 'water', 'ammunition', 'medical'][rollDie(4) - 1];
+          let getSupply = ['food', 'water', 'ammunition', 'medical'][rollDie(4) - 1];
+          while (getSupply === giveSupply) {
+            getSupply = ['food', 'water', 'ammunition', 'medical'][rollDie(4) - 1];
+          }
+          
+          if (supplies[giveSupply] > 1) {
+            setSupplies(prev => ({
+              ...prev, 
+              [giveSupply]: prev[giveSupply] - 1,
+              [getSupply]: Math.min(6, prev[getSupply] + 1)
+            }));
+            result = `You traded some ${giveSupply} for ${getSupply}.`;
+          } else {
+            result = `You don't have enough ${giveSupply} to trade.`;
+          }
+        } else {
+          result = 'No one was willing to trade with you.';
+        }
+        break;
+      case 'combat':
+        const combatRoll = rollD20() + (specialization === 'Rifleman' ? 2 : 0);
+        if (supplies.ammunition > 0) {
+          setSupplies(prev => ({...prev, ammunition: prev.ammunition - 1}));
+          
+          if (combatRoll >= 15) {
+            result = 'You successfully engaged the enemy!';
+            setCamaraderie('Heads');
+          } else if (combatRoll < 8) {
+            const damage = rollDie(6);
+            setPhysicalHealth(prev => Math.max(0, prev - damage));
+            result = `You were wounded in combat and took ${damage} damage.`;
+          } else {
+            result = 'Your shots missed their target.';
+          }
+        } else {
+          result = 'You have no ammunition remaining.';
+        }
+        break;
+      default:
+        result = 'You stand watch, observing the battlefield.';
+    }
+    
+    setActionResult(result);
+    addToGameLog(result);
+    
+    // Move to next phase based on current phase
+    if (gamePhase === 'morning') {
+      startAfternoonPhase();
+    } else if (gamePhase === 'afternoon') {
+      startEveningPhase();
+    } else if (gamePhase === 'evening') {
+      startNightPhase();
+    } else if (gamePhase === 'night') {
+      endDay();
+    }
+  };
+
+  // Render character creation screen
+  if (!gameStarted) {
+    return (
+      <div className="h-screen flex flex-col items-center justify-center bg-olive-900 text-gray-200 p-4">
+        <h1 className="text-4xl mb-8 font-bold text-olive-100">World War I Trench Warfare</h1>
+        <div className="max-w-md w-full bg-olive-800 p-6 rounded-lg shadow-lg">
+          <h2 className="text-2xl mb-4 text-center">Choose Your Specialization</h2>
+          <div className="grid grid-cols-1 gap-4">
+            <button 
+              className="bg-olive-700 hover:bg-olive-600 p-4 rounded-lg shadow" 
+              onClick={() => startGame('Rifleman')}
+            >
+              <strong>Rifleman</strong>
+              <p className="text-sm mt-1">+2 to combat rolls, better with ammunition</p>
+            </button>
+            <button 
+              className="bg-olive-700 hover:bg-olive-600 p-4 rounded-lg shadow" 
+              onClick={() => startGame('Medic')}
+            >
+              <strong>Medic</strong>
+              <p className="text-sm mt-1">+2 to healing, better medical skills</p>
+            </button>
+            <button 
+              className="bg-olive-700 hover:bg-olive-600 p-4 rounded-lg shadow" 
+              onClick={() => startGame('Engineer')}
+            >
+              <strong>Engineer</strong>
+              <p className="text-sm mt-1">+2 to construction, better at fortifications</p>
+            </button>
+            <button 
+              className="bg-olive-700 hover:bg-olive-600 p-4 rounded-lg shadow" 
+              onClick={() => startGame('Scout')}
+            >
+              <strong>Scout</strong>
+              <p className="text-sm mt-1">+2 to reconnaissance, better at stealth</p>
+            </button>
+          </div>
+        </div>
+        <p className="mt-6 text-olive-300 text-center max-w-md">
+          Survive the horrors of trench warfare for 7 days to win. 
+          Manage your physical health, mental fortitude, and supplies carefully.
+        </p>
+      </div>
+    );
+  }
+
+  // Game over screen
+  if (gameOver) {
+    return (
+      <div className="h-screen flex flex-col items-center justify-center bg-olive-900 text-gray-200 p-4">
+        <h1 className="text-4xl mb-4 font-bold text-center text-olive-100">
+          {victory ? 'Victory!' : 'Game Over'}
+        </h1>
+        <div className="max-w-md w-full bg-olive-800 p-6 rounded-lg shadow-lg">
+          <h2 className="text-2xl mb-4 text-center">
+            {victory 
+              ? 'You survived 7 days in the trenches!' 
+              : `You survived for ${day} days.`}
+          </h2>
+          <div className="mb-4">
+            <p className="mb-2"><strong>Final Status:</strong></p>
+            <p>Physical Health: {physicalHealth}/20</p>
+            <p>Mental Fortitude: {mentalFortitude}/20</p>
+            <p>Camaraderie: {camaraderie}</p>
+            <p>Days Survived: {day}</p>
+          </div>
+          <button 
+            className="w-full bg-olive-700 hover:bg-olive-600 p-3 rounded-lg shadow mt-4" 
+            onClick={() => window.location.reload()}
+          >
+            Start New Game
+          </button>
+        </div>
+      </div>
+    );
+  }
+
+  // Main game screen
+  return (
+    <div className="min-h-screen bg-olive-900 text-gray-200 p-4">
+      <div className="container mx-auto">
+        <h1 className="text-3xl mb-4 text-center text-olive-100">World War I Trench Warfare</h1>
+        
+        {/* Status Bar */}
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+          <div className="bg-olive-800 p-4 rounded-lg shadow-lg">
+            <h2 className="text-xl mb-2 border-b border-olive-700 pb-1">Status</h2>
+            <div className="grid grid-cols-2 gap-4">
+              <div>
+                <p><strong>Day:</strong> {day}/7</p>
+                <p><strong>Phase:</strong> {gamePhase.charAt(0).toUpperCase() + gamePhase.slice(1)}</p>
+                <p><strong>Specialization:</strong> {specialization}</p>
+                <p><strong>Camaraderie:</strong> {camaraderie}</p>
+              </div>
+              <div>
+                <p><strong>Physical Health:</strong> {physicalHealth}/20</p>
+                <p><strong>Mental Fortitude:</st
