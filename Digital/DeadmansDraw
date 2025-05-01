@@ -1,0 +1,485 @@
+import React, { useState, useEffect } from 'react';
+import { Dice1, Dice2, Dice3, Dice4, Dice5, Dice6, Heart, Crosshair, Coins, Trophy, Skull } from 'lucide-react';
+
+const DeadmansDrawGame = () => {
+  // Game state
+  const [gamePhase, setGamePhase] = useState('setup'); // setup, reward, quickdraw, resolution, store, gameover
+  const [currentPlayer, setCurrentPlayer] = useState(1); // 1 or 2
+  const [players, setPlayers] = useState({
+    1: { health: 6, ammo: 6, gold: 0, damage: 0, dice: [], rolling: false },
+    2: { health: 6, ammo: 6, gold: 0, damage: 0, dice: [], rolling: false }
+  });
+  const [rewardDie, setRewardDie] = useState(null);
+  const [rewardGold, setRewardGold] = useState(0);
+  const [accumulatedGold, setAccumulatedGold] = useState(0);
+  const [ammoSpend, setAmmoSpend] = useState({ 1: 1, 2: 1 });
+  const [message, setMessage] = useState('Welcome to Deadman\'s Draw!');
+  const [winner, setWinner] = useState(null);
+  const [rollTimer, setRollTimer] = useState(null);
+  const [isRolling, setIsRolling] = useState(false);
+  const [specialEvent, setSpecialEvent] = useState(null);
+  const [roundWinner, setRoundWinner] = useState(null);
+  
+  // Reset game
+  const startNewGame = () => {
+    setGamePhase('setup');
+    setCurrentPlayer(1);
+    setPlayers({
+      1: { health: 6, ammo: 6, gold: 0, damage: 0, dice: [], rolling: false },
+      2: { health: 6, ammo: 6, gold: 0, damage: 0, dice: [], rolling: false }
+    });
+    setRewardDie(null);
+    setRewardGold(0);
+    setAccumulatedGold(0);
+    setAmmoSpend({ 1: 1, 2: 1 });
+    setMessage('Welcome to Deadman\'s Draw!');
+    setWinner(null);
+    setSpecialEvent(null);
+    setRoundWinner(null);
+  };
+
+  // Start game
+  const startGame = () => {
+    setGamePhase('reward');
+    setMessage('Rolling for reward gold...');
+    rollRewardDie();
+  };
+  
+  // Roll a die
+  const rollDie = () => {
+    return Math.floor(Math.random() * 6) + 1;
+  };
+  
+  // Roll reward die
+  const rollRewardDie = () => {
+    const die = rollDie();
+    setRewardDie(die);
+    setRewardGold(die + accumulatedGold);
+    setMessage(`Reward for this round: ${die + accumulatedGold} gold`);
+    setTimeout(() => {
+      setGamePhase('quickdraw');
+      setMessage('Prepare for the quick draw! Select ammo to spend.');
+    }, 1500);
+  };
+  
+  // Handle ammo selection
+  const handleAmmoSelection = (player, amount) => {
+    if (amount > 0 && amount <= players[player].ammo && amount <= 3) {
+      setAmmoSpend(prev => ({ ...prev, [player]: amount }));
+    }
+  };
+  
+  // Quick draw phase
+  const startQuickDraw = () => {
+    // Check if either player has insufficient ammo
+    if (players[1].ammo < ammoSpend[1] || players[2].ammo < ammoSpend[2]) {
+      setMessage("Not enough ammo! Adjust your ammo spend.");
+      return;
+    }
+    
+    setMessage("3... 2... 1... DRAW!");
+    setIsRolling(true);
+    
+    // Update players' ammo
+    setPlayers(prev => ({
+      1: { ...prev[1], ammo: prev[1].ammo - ammoSpend[1], rolling: true, dice: [] },
+      2: { ...prev[2], ammo: prev[2].ammo - ammoSpend[2], rolling: true, dice: [] }
+    }));
+    
+    // Set a timer for dice rolling animation
+    const timer = setTimeout(() => {
+      performQuickDraw();
+    }, 1500);
+    
+    setRollTimer(timer);
+  };
+  
+  // Perform the quick draw
+  const performQuickDraw = () => {
+    // Roll dice for both players
+    const player1Dice = Array(ammoSpend[1]).fill(0).map(() => rollDie());
+    const player2Dice = Array(ammoSpend[2]).fill(0).map(() => rollDie());
+    
+    const player1Damage = player1Dice.reduce((sum, die) => sum + die, 0);
+    const player2Damage = player2Dice.reduce((sum, die) => sum + die, 0);
+    
+    setPlayers(prev => ({
+      1: { ...prev[1], dice: player1Dice, damage: player1Damage, rolling: false },
+      2: { ...prev[2], dice: player2Dice, damage: player2Damage, rolling: false }
+    }));
+    
+    setIsRolling(false);
+    
+    // Check for special events
+    checkSpecialEvents(player1Dice, player2Dice);
+    
+    // Move to resolution phase
+    setTimeout(() => {
+      resolveRound(player1Dice, player2Damage, player2Dice, player1Damage);
+    }, 1000);
+  };
+  
+  // Check for special events
+  const checkSpecialEvents = (player1Dice, player2Dice) => {
+    const allDice = [...player1Dice, ...player2Dice, rewardDie];
+    
+    // Check if all dice show 1s (Snake Eyes Catastrophe)
+    if (allDice.every(die => die === 1)) {
+      setSpecialEvent('snakeEyes');
+      setMessage("SNAKE EYES CATASTROPHE! Saloon brawl erupts!");
+      return;
+    }
+    
+    // Check if all dice show 6s (Sheriff's Justice)
+    if (allDice.every(die => die === 6)) {
+      setSpecialEvent('sheriff');
+      setMessage("SHERIFF'S JUSTICE! All dice show 6s! Preparing the coin flip...");
+      return;
+    }
+    
+    // Check for Quick Six Standoff
+    if (rewardDie !== 6 && player1Dice.includes(6) && player2Dice.includes(6)) {
+      setSpecialEvent('quickSix');
+      // Randomly determine which player's die stopped first
+      const firstStopped = Math.random() < 0.5 ? 1 : 2;
+      setRoundWinner(firstStopped);
+      setMessage(`QUICK SIX STANDOFF! Player ${firstStopped}'s die stopped first!`);
+      return;
+    }
+    
+    // Check for Lucky Shot (reward 5 and damage includes 2)
+    if (rewardDie === 5) {
+      if (player1Dice.includes(2)) {
+        setSpecialEvent('luckyShot1');
+        setMessage("LUCKY SHOT! Player 1 gets double gold!");
+      }
+      if (player2Dice.includes(2)) {
+        setSpecialEvent('luckyShot2');
+        setMessage("LUCKY SHOT! Player 2 gets double gold!");
+      }
+    }
+  };
+  
+  // Resolve the round
+  const resolveRound = (player1Dice, player2Damage, player2Dice, player1Damage) => {
+    setGamePhase('resolution');
+    
+    let winner;
+    let newAccumulatedGold = accumulatedGold;
+    const updatedPlayers = { ...players };
+    
+    // Apply damage
+    updatedPlayers[1].health -= player2Damage;
+    updatedPlayers[2].health -= player1Damage;
+    
+    // Handle special events
+    if (specialEvent === 'snakeEyes') {
+      // Snake Eyes Catastrophe: Both take 1 extra damage, winner gets 100 gold
+      updatedPlayers[1].health -= 1;
+      updatedPlayers[2].health -= 1;
+      winner = player1Damage > player2Damage ? 1 : player1Damage < player2Damage ? 2 : null;
+      if (winner) {
+        updatedPlayers[winner].gold += 100;
+        setMessage(`Player ${winner} wins the round and gets 100 gold from the Snake Eyes Catastrophe!`);
+      } else {
+        setMessage("Tied duel! Both players take damage, gold carries over to next round.");
+        newAccumulatedGold += rewardGold;
+      }
+    } else if (specialEvent === 'sheriff') {
+      // Sheriff's Justice: Coin flip
+      winner = Math.random() < 0.5 ? 1 : 2;
+      const loser = winner === 1 ? 2 : 1;
+      updatedPlayers[loser].health -= 1;
+      updatedPlayers[loser].gold = Math.floor(updatedPlayers[loser].gold / 2);
+      updatedPlayers[winner].gold += rewardGold;
+      setMessage(`Sheriff's coin flip: Player ${loser} is taken to the gallows! Player ${winner} wins ${rewardGold} gold.`);
+    } else if (specialEvent === 'quickSix') {
+      // Quick Six Standoff: First to stop rolling wins
+      winner = roundWinner;
+      updatedPlayers[winner].gold += rewardGold;
+      setMessage(`Player ${winner} wins the Quick Six Standoff and gets ${rewardGold} gold!`);
+    } else if (specialEvent === 'luckyShot1' || specialEvent === 'luckyShot2') {
+      // Lucky Shot: Double gold
+      const luckyPlayer = specialEvent === 'luckyShot1' ? 1 : 2;
+      // Still determine winner normally
+      winner = player1Damage > player2Damage ? 1 : player1Damage < player2Damage ? 2 : null;
+      
+      if (winner) {
+        updatedPlayers[winner].gold += rewardGold;
+      }
+      // Lucky player gets double gold regardless of winning
+      updatedPlayers[luckyPlayer].gold += rewardGold * 2;
+      
+      if (winner) {
+        setMessage(`Player ${winner} wins the round! Player ${luckyPlayer} gets double gold (${rewardGold * 2}) for the Lucky Shot!`);
+      } else {
+        setMessage(`Tied duel! Player ${luckyPlayer} still gets double gold (${rewardGold * 2}) for the Lucky Shot! Regular gold carries over.`);
+        newAccumulatedGold += rewardGold;
+      }
+    } else {
+      // Normal resolution
+      winner = player1Damage > player2Damage ? 1 : player1Damage < player2Damage ? 2 : null;
+      
+      if (winner) {
+        updatedPlayers[winner].gold += rewardGold;
+        setMessage(`Player ${winner} wins the round and gets ${rewardGold} gold!`);
+      } else {
+        setMessage("Tied duel! Both players take damage, gold carries over to next round.");
+        newAccumulatedGold += rewardGold;
+      }
+    }
+    
+    setPlayers(updatedPlayers);
+    setAccumulatedGold(newAccumulatedGold);
+    setRoundWinner(winner);
+    
+    // Check for game over
+    if (updatedPlayers[1].health <= 0 || updatedPlayers[2].health <= 0) {
+      let gameWinner;
+      if (updatedPlayers[1].health <= 0 && updatedPlayers[2].health <= 0) {
+        // Both died, winner is the one who died last (took less damage)
+        gameWinner = player1Damage < player2Damage ? 1 : 2;
+      } else {
+        gameWinner = updatedPlayers[1].health <= 0 ? 2 : 1;
+      }
+      
+      setWinner(gameWinner);
+      setMessage(`Player ${gameWinner} wins the game!`);
+      setGamePhase('gameover');
+    } else {
+      // Move to store phase
+      setTimeout(() => {
+        setGamePhase('store');
+        setMessage("Visit the General Store to purchase health or ammo.");
+      }, 2000);
+    }
+  };
+  
+  // Purchase health
+  const buyHealth = (player) => {
+    if (players[player].gold >= 3 && players[player].health < 6) {
+      setPlayers(prev => ({
+        ...prev,
+        [player]: {
+          ...prev[player],
+          gold: prev[player].gold - 3,
+          health: prev[player].health + 1
+        }
+      }));
+    }
+  };
+  
+  // Purchase ammo
+  const buyAmmo = (player) => {
+    if (players[player].gold >= 2 && players[player].ammo < 6) {
+      setPlayers(prev => ({
+        ...prev,
+        [player]: {
+          ...prev[player],
+          gold: prev[player].gold - 2,
+          ammo: prev[player].ammo + 1
+        }
+      }));
+    }
+  };
+  
+  // Next round
+  const nextRound = () => {
+    setGamePhase('reward');
+    setMessage('Rolling for reward gold...');
+    setAmmoSpend({ 1: 1, 2: 1 });
+    setSpecialEvent(null);
+    setRoundWinner(null);
+    setPlayers(prev => ({
+      1: { ...prev[1], damage: 0, dice: [] },
+      2: { ...prev[2], damage: 0, dice: [] }
+    }));
+    rollRewardDie();
+  };
+  
+  // Clean up timers
+  useEffect(() => {
+    return () => {
+      if (rollTimer) {
+        clearTimeout(rollTimer);
+      }
+    };
+  }, [rollTimer]);
+  
+  // Render dice
+  const renderDie = (value) => {
+    switch (value) {
+      case 1: return <Dice1 size={32} />;
+      case 2: return <Dice2 size={32} />;
+      case 3: return <Dice3 size={32} />;
+      case 4: return <Dice4 size={32} />;
+      case 5: return <Dice5 size={32} />;
+      case 6: return <Dice6 size={32} />;
+      default: return null;
+    }
+  };
+  
+  // Render player stats and controls
+  const renderPlayerArea = (player) => {
+    const playerData = players[player];
+    
+    return (
+      <div className={`p-4 border-2 rounded-lg ${roundWinner === player ? 'border-yellow-500 bg-yellow-50' : 'border-gray-300'}`}>
+        <h2 className="text-xl font-bold mb-2">Player {player}</h2>
+        
+        <div className="flex items-center gap-2 mb-2">
+          <Heart className="text-red-500" size={20} />
+          <div className="font-bold">{playerData.health}</div>
+          
+          <Crosshair className="ml-4 text-gray-700" size={20} />
+          <div className="font-bold">{playerData.ammo}</div>
+          
+          <Coins className="ml-4 text-yellow-500" size={20} />
+          <div className="font-bold">{playerData.gold}</div>
+        </div>
+        
+        {gamePhase === 'quickdraw' && (
+          <div className="mb-4">
+            <p className="mb-2">Ammo to spend:</p>
+            <div className="flex gap-2">
+              {[1, 2, 3].map(amount => (
+                <button
+                  key={amount}
+                  onClick={() => handleAmmoSelection(player, amount)}
+                  disabled={amount > playerData.ammo}
+                  className={`w-12 h-12 rounded ${ammoSpend[player] === amount ? 'bg-blue-500 text-white' : 'bg-gray-200'} ${amount > playerData.ammo ? 'opacity-50 cursor-not-allowed' : ''}`}
+                >
+                  {amount}
+                </button>
+              ))}
+            </div>
+          </div>
+        )}
+        
+        {gamePhase === 'store' && (
+          <div className="mt-4">
+            <button
+              onClick={() => buyHealth(player)}
+              disabled={playerData.gold < 3 || playerData.health >= 6}
+              className="bg-red-500 text-white px-3 py-1 rounded mr-2 disabled:bg-gray-300"
+            >
+              Buy Health (3 Gold)
+            </button>
+            <button
+              onClick={() => buyAmmo(player)}
+              disabled={playerData.gold < 2 || playerData.ammo >= 6}
+              className="bg-gray-700 text-white px-3 py-1 rounded disabled:bg-gray-300"
+            >
+              Buy Ammo (2 Gold)
+            </button>
+          </div>
+        )}
+        
+        <div className="mt-4 flex flex-wrap gap-2">
+          {playerData.dice.map((die, index) => (
+            <div key={index} className={`w-12 h-12 flex items-center justify-center border rounded ${isRolling ? 'animate-bounce' : ''}`}>
+              {isRolling ? <div className="animate-spin">⏳</div> : renderDie(die)}
+            </div>
+          ))}
+        </div>
+        
+        {playerData.damage > 0 && !isRolling && (
+          <div className="mt-2">
+            Damage: {playerData.damage}
+          </div>
+        )}
+      </div>
+    );
+  };
+  
+  return (
+    <div className="max-w-4xl mx-auto p-4">
+      <h1 className="text-3xl font-bold text-center mb-6">Deadman's Draw</h1>
+      
+      <div className="bg-yellow-100 border border-yellow-300 rounded p-4 mb-6">
+        <p className="text-lg font-semibold">{message}</p>
+        {specialEvent && (
+          <div className="mt-2 p-2 bg-red-100 border border-red-300 rounded">
+            <p className="font-bold">Special Event!</p>
+          </div>
+        )}
+      </div>
+      
+      <div className="mb-6 flex justify-center items-center gap-4">
+        {rewardDie ? (
+          <div>
+            <p className="text-center mb-2">Reward</p>
+            <div className="w-16 h-16 mx-auto flex items-center justify-center border-2 border-yellow-500 rounded">
+              {renderDie(rewardDie)}
+            </div>
+            <p className="text-center mt-2">{rewardGold} Gold</p>
+            {accumulatedGold > 0 && <p className="text-center text-sm">(includes {accumulatedGold} carried over)</p>}
+          </div>
+        ) : (
+          gamePhase === 'setup' && (
+            <button
+              onClick={startGame}
+              className="bg-green-600 text-white px-6 py-3 rounded text-xl font-bold hover:bg-green-700"
+            >
+              Start Game
+            </button>
+          )
+        )}
+      </div>
+      
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+        {renderPlayerArea(1)}
+        {renderPlayerArea(2)}
+      </div>
+      
+      {gamePhase === 'quickdraw' && (
+        <div className="flex justify-center mb-6">
+          <button
+            onClick={startQuickDraw}
+            className="bg-red-600 text-white px-6 py-3 rounded text-xl font-bold hover:bg-red-700"
+          >
+            Ready to Draw!
+          </button>
+        </div>
+      )}
+      
+      {gamePhase === 'store' && (
+        <div className="flex justify-center mb-6">
+          <button
+            onClick={nextRound}
+            className="bg-blue-600 text-white px-6 py-3 rounded text-xl font-bold hover:bg-blue-700"
+          >
+            Next Round
+          </button>
+        </div>
+      )}
+      
+      {gamePhase === 'gameover' && (
+        <div className="text-center mb-6">
+          <div className="p-4 bg-yellow-100 border-2 border-yellow-500 rounded mb-4">
+            <Trophy className="inline-block text-yellow-500 mr-2" size={32} />
+            <span className="text-2xl font-bold">Player {winner} wins the game!</span>
+          </div>
+          <button
+            onClick={startNewGame}
+            className="bg-green-600 text-white px-6 py-3 rounded text-xl font-bold hover:bg-green-700"
+          >
+            Play Again
+          </button>
+        </div>
+      )}
+      
+      <div className="border-t pt-4 mt-6">
+        <h3 className="font-bold mb-2">Special Rules:</h3>
+        <ul className="text-sm">
+          <li><span className="font-semibold">Lucky Shot:</span> If reward die is 5 AND a player rolls a 2, they get DOUBLE gold.</li>
+          <li><span className="font-semibold">Snake Eyes Catastrophe:</span> If ALL dice show 1's, both take extra damage but winner gets 100 gold!</li>
+          <li><span className="font-semibold">Quick Six Standoff:</span> If both players roll a 6 (and reward die isn't 6), first to stop rolling wins!</li>
+          <li><span className="font-semibold">Sheriff's Justice:</span> If ALL dice show 6's, coin flip determines who goes to the gallows!</li>
+        </ul>
+      </div>
+    </div>
+  );
+};
+
+export default DeadmansDrawGame;
